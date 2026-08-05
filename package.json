@@ -1,10 +1,11 @@
 {
   "name": "prueba-tecnica-c2lab",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "API REST de usuarios desarrollada con Node.js, Express y MongoDB",
+  "main": "src/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
   },
   "repository": {
     "type": "git",
@@ -13,7 +14,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/juanodsk/prueba-c2lab/issues"
   },
