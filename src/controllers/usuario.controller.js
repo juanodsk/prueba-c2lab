@@ -62,3 +62,25 @@ export async function obtenerUsuarioPorId(req, res, next) {
     next(error);
   }
 }
+
+export async function actualizarUsuario(req, res, next) {
+  try {
+    const usuario = await Usuario.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    }).lean();
+
+    if (!usuario) {
+      return res.status(404).json({
+        error: "Usuario no encontrado",
+      });
+    }
+
+    return res.status(200).json({
+      mensaje: "Usuario actualizado correctamente",
+      data: usuario,
+    });
+  } catch (error) {
+    next(error);
+  }
+}

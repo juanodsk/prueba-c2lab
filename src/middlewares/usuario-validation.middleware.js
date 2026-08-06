@@ -6,6 +6,43 @@ function esTextoValido(value) {
   return typeof value === "string" && value.trim().length > 0;
 }
 
+function validarDirecciones(direcciones, detalles) {
+  if (!Array.isArray(direcciones)) {
+    detalles.push({
+      campo: "direcciones",
+      mensaje: "Las direcciones deben ser un arreglo",
+    });
+
+    return;
+  }
+
+  direcciones.forEach((direccion, index) => {
+    if (
+      typeof direccion !== "object" ||
+      direccion === null ||
+      Array.isArray(direccion)
+    ) {
+      detalles.push({
+        campo: `direcciones.${index}`,
+        mensaje: "La dirección debe ser un objeto válido",
+      });
+
+      return;
+    }
+
+    const camposRequeridos = ["calle", "ciudad", "pais", "codigo_postal"];
+
+    camposRequeridos.forEach((campo) => {
+      if (!esTextoValido(direccion[campo])) {
+        detalles.push({
+          campo: `direcciones.${index}.${campo}`,
+          mensaje: `El campo ${campo} debe ser un texto no vacío`,
+        });
+      }
+    });
+  });
+}
+
 export function validarCrearUsuario(req, res, next) {
   if (
     typeof req.body !== "object" ||
@@ -50,38 +87,7 @@ export function validarCrearUsuario(req, res, next) {
   }
 
   if (direcciones !== undefined) {
-    if (!Array.isArray(direcciones)) {
-      detalles.push({
-        campo: "direcciones",
-        mensaje: "Las direcciones deben ser un arreglo",
-      });
-    } else {
-      direcciones.forEach((direccion, index) => {
-        if (
-          typeof direccion !== "object" ||
-          direccion === null ||
-          Array.isArray(direccion)
-        ) {
-          detalles.push({
-            campo: `direcciones.${index}`,
-            mensaje: "La dirección debe ser un objeto válido",
-          });
-
-          return;
-        }
-
-        const camposRequeridos = ["calle", "ciudad", "pais", "codigo_postal"];
-
-        camposRequeridos.forEach((campo) => {
-          if (!esTextoValido(direccion[campo])) {
-            detalles.push({
-              campo: `direcciones.${index}.${campo}`,
-              mensaje: `El campo ${campo} debe ser un texto no vacío`,
-            });
-          }
-        });
-      });
-    }
+    validarDirecciones(direcciones, detalles);
   }
 
   if (detalles.length > 0) {
@@ -153,6 +159,87 @@ export function validarIdUsuario(req, res, next) {
   if (!mongoose.isObjectIdOrHexString(id)) {
     return res.status(400).json({
       error: "El identificador del usuario no es válido",
+    });
+  }
+
+  next();
+}
+
+const camposActualizables = ["nombre", "email", "edad", "direcciones"];
+
+export function validarActualizarUsuario(req, res, next) {
+  if (
+    typeof req.body !== "object" ||
+    req.body === null ||
+    Array.isArray(req.body)
+  ) {
+    return res.status(400).json({
+      error: "El cuerpo de la petición debe ser un objeto JSON",
+    });
+  }
+
+  const camposRecibidos = Object.keys(req.body);
+  const detalles = [];
+
+  if (camposRecibidos.length === 0) {
+    detalles.push({
+      campo: "body",
+      mensaje: "Debe proporcionar al menos un campo para actualizar",
+    });
+  }
+
+  const camposNoPermitidos = camposRecibidos.filter(
+    (campo) => !camposActualizables.includes(campo),
+  );
+
+  camposNoPermitidos.forEach((campo) => {
+    detalles.push({
+      campo,
+      mensaje: "Este campo no puede ser actualizado",
+    });
+  });
+
+  const { nombre, email, edad, direcciones } = req.body;
+
+  if (nombre !== undefined && !esTextoValido(nombre)) {
+    detalles.push({
+      campo: "nombre",
+      mensaje: "El nombre debe ser un texto no vacío",
+    });
+  }
+
+  if (email !== undefined) {
+    if (!esTextoValido(email)) {
+      detalles.push({
+        campo: "email",
+        mensaje: "El email debe ser un texto no vacío",
+      });
+    } else if (!emailRegex.test(email)) {
+      detalles.push({
+        campo: "email",
+        mensaje: "El formato del email no es válido",
+      });
+    }
+  }
+
+  if (
+    edad !== undefined &&
+    (typeof edad !== "number" || !Number.isInteger(edad) || edad < 0)
+  ) {
+    detalles.push({
+      campo: "edad",
+      mensaje: "La edad debe ser un número entero no negativo",
+    });
+  }
+
+  if (direcciones !== undefined) {
+    validarDirecciones(direcciones, detalles);
+  }
+
+  if (detalles.length > 0) {
+    return res.status(400).json({
+      error: "Los datos del usuario no son válidos",
+      detalles,
     });
   }
 

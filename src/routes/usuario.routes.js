@@ -3,12 +3,14 @@ import {
   crearUsuario,
   listarUsuarios,
   obtenerUsuarioPorId,
+  actualizarUsuario,
 } from "../controllers/usuario.controller.js";
 
 import {
   validarCrearUsuario,
   validarIdUsuario,
   validarPaginacion,
+  validarActualizarUsuario,
 } from "../middlewares/usuario-validation.middleware.js";
 
 const router = Router();
@@ -16,5 +18,10 @@ const router = Router();
 router.get("/", validarPaginacion, listarUsuarios);
 router.post("/", validarCrearUsuario, crearUsuario);
 router.get("/:id", validarIdUsuario, obtenerUsuarioPorId);
-
+router.put(
+  "/:id",
+  validarIdUsuario,
+  validarActualizarUsuario,
+  actualizarUsuario,
+);
 export default router;
