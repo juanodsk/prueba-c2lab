@@ -4,6 +4,7 @@ import {
   listarUsuarios,
   obtenerUsuarioPorId,
   actualizarUsuario,
+  eliminarUsuario,
 } from "../controllers/usuario.controller.js";
 
 import {
@@ -24,4 +25,5 @@ router.put(
   validarActualizarUsuario,
   actualizarUsuario,
 );
+router.delete("/:id", validarIdUsuario, eliminarUsuario);
 export default router;

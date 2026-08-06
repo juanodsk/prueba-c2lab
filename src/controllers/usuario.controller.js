@@ -84,3 +84,21 @@ export async function actualizarUsuario(req, res, next) {
     next(error);
   }
 }
+
+export async function eliminarUsuario(req, res, next) {
+  try {
+    const usuario = await Usuario.findByIdAndDelete(req.params.id).lean();
+
+    if (!usuario) {
+      return res.status(404).json({
+        error: "Usuario no encontrado",
+      });
+    }
+
+    return res.status(200).json({
+      mensaje: "Usuario eliminado correctamente",
+    });
+  } catch (error) {
+    next(error);
+  }
+}
