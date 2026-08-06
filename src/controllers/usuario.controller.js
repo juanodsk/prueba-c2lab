@@ -12,3 +12,35 @@ export async function crearUsuario(req, res, next) {
     next(error);
   }
 }
+
+export async function listarUsuarios(req, res, next) {
+  try {
+    const { page, limit } = req.pagination;
+    const skip = (page - 1) * limit;
+
+    const [usuarios, totalUsuarios] = await Promise.all([
+      Usuario.find()
+        .sort({ fecha_creacion: -1, _id: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      Usuario.countDocuments(),
+    ]);
+
+    const totalPaginas = Math.ceil(totalUsuarios / limit);
+
+    res.status(200).json({
+      data: usuarios,
+      paginacion: {
+        paginaActual: page,
+        limite: limit,
+        totalUsuarios,
+        totalPaginas,
+        tienePaginaAnterior: page > 1,
+        tienePaginaSiguiente: page < totalPaginas,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}

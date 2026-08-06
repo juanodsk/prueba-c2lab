@@ -91,3 +91,56 @@ export function validarCrearUsuario(req, res, next) {
 
   next();
 }
+
+function convertirEnteroPositivo(value) {
+  if (typeof value !== "string" || !/^\d+$/.test(value)) {
+    return null;
+  }
+
+  const numero = Number(value);
+
+  if (!Number.isSafeInteger(numero) || numero <= 0) {
+    return null;
+  }
+
+  return numero;
+}
+
+export function validarPaginacion(req, res, next) {
+  const page = convertirEnteroPositivo(req.query.page ?? "1");
+  const limit = convertirEnteroPositivo(req.query.limit ?? "10");
+  const detalles = [];
+
+  if (page === null) {
+    detalles.push({
+      campo: "page",
+      mensaje: "page debe ser un número entero mayor que cero",
+    });
+  }
+
+  if (limit === null) {
+    detalles.push({
+      campo: "limit",
+      mensaje: "limit debe ser un número entero mayor que cero",
+    });
+  } else if (limit > 100) {
+    detalles.push({
+      campo: "limit",
+      mensaje: "limit no puede ser mayor que 100",
+    });
+  }
+
+  if (detalles.length > 0) {
+    return res.status(400).json({
+      error: "Los parámetros de paginación no son válidos",
+      detalles,
+    });
+  }
+
+  req.pagination = {
+    page,
+    limit,
+  };
+
+  next();
+}
