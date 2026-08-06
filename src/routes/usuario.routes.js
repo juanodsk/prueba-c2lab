@@ -5,6 +5,7 @@ import {
   obtenerUsuarioPorId,
   actualizarUsuario,
   eliminarUsuario,
+  buscarUsuariosPorCiudad,
 } from "../controllers/usuario.controller.js";
 
 import {
@@ -12,12 +13,14 @@ import {
   validarIdUsuario,
   validarPaginacion,
   validarActualizarUsuario,
+  validarBusquedaPorCiudad,
 } from "../middlewares/usuario-validation.middleware.js";
 
 const router = Router();
 
 router.get("/", validarPaginacion, listarUsuarios);
 router.post("/", validarCrearUsuario, crearUsuario);
+router.get("/buscar", validarBusquedaPorCiudad, buscarUsuariosPorCiudad);
 router.get("/:id", validarIdUsuario, obtenerUsuarioPorId);
 router.put(
   "/:id",

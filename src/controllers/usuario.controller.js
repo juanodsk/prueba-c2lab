@@ -1,5 +1,8 @@
 import Usuario from "../models/Usuario.js";
 
+function escaparExpresionRegular(texto) {
+  return texto.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
 export async function crearUsuario(req, res, next) {
   try {
     const usuario = await Usuario.create(req.body);
@@ -97,6 +100,27 @@ export async function eliminarUsuario(req, res, next) {
 
     return res.status(200).json({
       mensaje: "Usuario eliminado correctamente",
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function buscarUsuariosPorCiudad(req, res, next) {
+  try {
+    const ciudad = req.query.ciudad.trim();
+    const ciudadSegura = escaparExpresionRegular(ciudad);
+    const coincidenciaExacta = new RegExp(`^${ciudadSegura}$`, "i");
+
+    const usuarios = await Usuario.find({
+      "direcciones.ciudad": coincidenciaExacta,
+    })
+      .sort({ fecha_creacion: -1, _id: -1 })
+      .lean();
+
+    return res.status(200).json({
+      data: usuarios,
+      total: usuarios.length,
     });
   } catch (error) {
     next(error);

@@ -245,3 +245,15 @@ export function validarActualizarUsuario(req, res, next) {
 
   next();
 }
+
+export function validarBusquedaPorCiudad(req, res, next) {
+  const { ciudad } = req.query;
+
+  if (typeof ciudad !== "string" || ciudad.trim().length === 0) {
+    return res.status(400).json({
+      error: "El parámetro ciudad es obligatorio y debe ser un texto no vacío",
+    });
+  }
+
+  next();
+}
