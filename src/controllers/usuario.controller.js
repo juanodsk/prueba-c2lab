@@ -44,3 +44,21 @@ export async function listarUsuarios(req, res, next) {
     next(error);
   }
 }
+
+export async function obtenerUsuarioPorId(req, res, next) {
+  try {
+    const usuario = await Usuario.findById(req.params.id).lean();
+
+    if (!usuario) {
+      return res.status(404).json({
+        error: "Usuario no encontrado",
+      });
+    }
+
+    return res.status(200).json({
+      data: usuario,
+    });
+  } catch (error) {
+    next(error);
+  }
+}

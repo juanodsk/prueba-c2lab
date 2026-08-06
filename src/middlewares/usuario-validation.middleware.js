@@ -1,3 +1,5 @@
+import mongoose from "mongoose";
+
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function esTextoValido(value) {
@@ -141,6 +143,18 @@ export function validarPaginacion(req, res, next) {
     page,
     limit,
   };
+
+  next();
+}
+
+export function validarIdUsuario(req, res, next) {
+  const { id } = req.params;
+
+  if (!mongoose.isObjectIdOrHexString(id)) {
+    return res.status(400).json({
+      error: "El identificador del usuario no es válido",
+    });
+  }
 
   next();
 }
