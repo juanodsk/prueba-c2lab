@@ -1,4 +1,6 @@
 import express from "express";
+import usuarioRoutes from "./routes/usuario.routes.js";
+import { errorHandler } from "./middlewares/error.middleware.js";
 
 const app = express();
 
@@ -10,5 +12,9 @@ app.get("/", (req, res) => {
     message: "API de usuarios funcionando",
   });
 });
+
+app.use("/usuarios", usuarioRoutes);
+
+app.use(errorHandler);
 
 export default app;
